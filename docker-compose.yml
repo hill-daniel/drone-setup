@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  drone-server:
+    container_name: droneServer
+    hostname: droneServer
+    image: drone/drone:0.8.1
+    ports:
+      - 8000:8000
+      - 9000:9000
+    volumes:
+      - ./drone:/var/lib/drone/
+    restart: always
+    env_file:
+      - /etc/drone/server.env
+
+  drone-agent:
+    image: drone/agent:0.8.1
+    links:
+      - drone-server:droneServer
+    restart: always
+    depends_on:
+      - drone-server
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    links:
+      - drone-server:droneServer
+    env_file:
+      - /etc/drone/agent.env
